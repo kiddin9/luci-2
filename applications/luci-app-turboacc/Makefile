@@ -7,6 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-turboacc
 PKG_RELEASE:=$(COMMITCOUNT)
+PKG_FLAGS:=nonshared
 
 PKG_LICENSE:=GPL-3.0-only
 PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org> & Lean <coolsnowwolf@gmail.com>
