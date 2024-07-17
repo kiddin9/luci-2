@@ -22,7 +22,7 @@ inital_conf(){
 	config_get "dns_caching_mode" "config" "dns_caching_mode" "0"
 	config_get "dns_caching_dns" "config" "dns_caching_dns"
 
-	[ ! -e "/lib/modules/$(uname -r)/xt_FLOWOFFLOAD.ko" ] && { sw_flow="0"; hw_flow="0"; }
+	[[ ! -e "/lib/modules/$(uname -r)/xt_FLOWOFFLOAD.ko" && ! -e "/lib/modules/$(uname -r)/nft_flow_offload.ko" ]] && { sw_flow="0"; hw_flow="0"; }
 	[ ! -e "/lib/modules/$(uname -r)/tcp_bbr.ko" ] && bbr_cca="0"
 }
 
@@ -280,27 +280,6 @@ start(){
 		sysctl -w net.ipv4.tcp_congestion_control="cubic"
 	fi
 
-	if [ "${dns_caching}" -eq "1" ];  then
-		stop_dnscache
-		sleep 1
-
-		rm -f "/var/log/dnscache.file"
-		if [ "${dns_caching_mode}" = "1" ];  then
-			start_pdnsd
-		elif [ "${dns_caching_mode}" = "2" ];  then
-			start_dnsforwarder
-		elif [ "${dns_caching_mode}" = "3" ];  then
-			start_dnsproxy
-		fi
-
-		change_dns
-
-		/usr/share/dnscache/dnscache-while.sh > "/var/log/dnscache.file" 2>&1 &
-	else
-		revert_dns
-		stop_dnscache
-	fi
-
 	if [ "${restart_utils}" = "true" ]; then
 		echo "DNSMASQ change"
 		/etc/init.d/dnsmasq restart >"/dev/null" 2>&1
@@ -346,10 +325,10 @@ restart(){
 check_status(){
 	case "$1" in
 	"fastpath")
-		if [ "$(cat "/sys/module/xt_FLOWOFFLOAD/refcnt" 2>"/dev/null" || echo 0)" -ne "0" ]; then
+		if [[ "$(cat "/sys/module/xt_FLOWOFFLOAD/refcnt" 2>"/dev/null" || echo 0)" -ne "0" || "$(cat "/sys/module/nft_flow_offload/refcnt" 2>"/dev/null" || echo 0)" -ne "0" ]]; then
 			echo -n "Flow Offloading"
 			exit 0
-		elif [ "$(cat "/sys/module/xt_FLOWOFFLOAD/refcnt" 2>"/dev/null")" -eq "0" ] && \
+		elif [[ "$(cat "/sys/module/xt_FLOWOFFLOAD/refcnt" 2>"/dev/null")" -eq "0" || "$(cat "/sys/module/nft_flow_offload/refcnt" 2>"/dev/null")" -eq "0" ]] && \
 		    [ -e /sys/kernel/debug/hnat/hnat_version ]; then
 			echo -n "MediaTek HWNAT"
 			exit 0
@@ -370,7 +349,8 @@ check_status(){
 		fi
 		;;
 	"fullconenat")
-    if [ -z "$(iptables -t nat -L zone_wan_postrouting | grep -i fullcone)" ]; then
+
+    if [[ -z "$(iptables -t nat -L zone_wan_postrouting | grep -i fullcone)"  && "$(cat "/sys/module/nft_fullcone/refcnt" 2>"/dev/null" || echo 0)" -eq "0" ]]; then
       exit 1
     else
       exit 0
@@ -379,9 +359,6 @@ check_status(){
 	"bbr")
 		[ "x$(cat "/proc/sys/net/ipv4/tcp_congestion_control" 2>"/dev/null")" = "xbbr" ] && \
 			exit 0 || exit 1
-		;;
-	"dns")
-		pgrep "dnscache" >"/dev/null" && exit 0 || exit 1
 		;;
 	*)
 		exit 2
