@@ -25,7 +25,6 @@ LUCI_DEPENDS:=+PACKAGE_$(PKG_NAME)_INCLUDE_PDNSD:pdnsd-alt \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_BBR_CCA:kmod-tcp-bbr \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_DNSFORWARDER:dnsforwarder \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_DNSPROXY:dnsproxy \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_OFFLOADING:kmod-ipt-offload \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE:kmod-fast-classifier \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_CM:kmod-shortcut-fe-cm \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_DRV:kmod-shortcut-fe-drv
@@ -56,19 +55,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_DRV
 config PACKAGE_$(PKG_NAME)_INCLUDE_BBR_CCA
 	bool "Include BBR CCA"
 	default y
-
-config PACKAGE_$(PKG_NAME)_INCLUDE_PDNSD
-	bool "Include Pdnsd"
-	default y
-
-config PACKAGE_$(PKG_NAME)_INCLUDE_DNSFORWARDER
-	bool "Include DNSForwarder"
-	default n
-
-config PACKAGE_$(PKG_NAME)_INCLUDE_DNSPROXY
-	bool "Include DNSProxy"
-	default n
-endef
 
 include ../../luci.mk
 
