@@ -50,7 +50,7 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_DRV
 	bool "Include Shortcut-FE ECM"
 	depends on PACKAGE_$(PKG_NAME)_INCLUDE_OFFLOADING=n
 	depends on PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_CM=n
-	depends on (TARGET_ipq60xx||TARGET_ipq806x||TARGET_ipq807x)
+	depends on (TARGET_ipq60xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_qualcommax)
 	default y
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_BBR_CCA
