@@ -59,6 +59,15 @@
 		}
 	},
 
+	"admin/control": {
+		"title": "Control",
+		"order": 51,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		}
+	},
+
 	"admin/network": {
 		"title": "Network",
 		"order": 60,
